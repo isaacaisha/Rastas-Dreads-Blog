@@ -205,7 +205,7 @@ def admin_only(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # If id is not 1 or 2, then return abort with 403 error
-        if current_user.id != 1 and current_user.id != 2:
+        if not isinstance(current_user, User) or (current_user.id != 1 and current_user.id != 2):
             return abort(403)
         # Otherwise continue with the route function
         return f(*args, **kwargs)
@@ -276,4 +276,4 @@ def comment_to_delete(comment_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)
