@@ -9,10 +9,9 @@ from flask_login import UserMixin, login_user, LoginManager,  current_user, logo
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from flask_gravatar import Gravatar
 from functools import wraps
-import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
@@ -20,7 +19,7 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
                     force_lower=False, use_ssl=False, base_url=None)
 
 # CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///blog.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -206,8 +205,8 @@ def admin_only(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # If id is not 1 or 2, then return abort with 403 error
-        # if current_user.id != 1 and current_user.id != 2:
-        #     return abort(403)
+        if current_user.id != 1 and current_user.id != 2:
+            return abort(403)
         # Otherwise continue with the route function
         return f(*args, **kwargs)
     return decorated_function
