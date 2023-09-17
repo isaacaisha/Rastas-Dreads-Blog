@@ -15,7 +15,7 @@
               <a href="#">{{post.author.name}}</a>
               on {{post.date}}</span>
 
-            <p><img src="https://media.giphy.com/media/QJfCtrknxjcGPnRfMl/giphy.gif" style="width:9%;"></p>
+            <p class="text-center"><img src="https://media.giphy.com/media/QJfCtrknxjcGPnRfMl/giphy.gif" style="width:19%;"></p>
 
           </div>
         </div>
@@ -34,7 +34,7 @@
             <!-- If user id is 1 then they can see the deleted button -->
             {% if current_user.id == 1: %}
             <div class="clearfix">
-            <a class="btn btn-primary float-right" href="{{url_for('edit_post', post_id=post.id)}}">Edit Post</a>
+            <a class="btn btn-outline-success btn-block" href="{{url_for('edit_post', post_id=post.id)}}">Edit Post</a>
             </div>
           {% endif %}
 

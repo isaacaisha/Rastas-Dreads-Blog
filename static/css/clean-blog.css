@@ -483,3 +483,8 @@ footer .copyright {
   font-size: 16px;
   padding: 25px 35px;
 }
+
+
+.error-message {
+    color: red; /* Set text color to red */
+}

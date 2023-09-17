@@ -45,15 +45,16 @@
 
 
         <!-- New Post -->
-        <!-- If user id is 1 then they can see the deleted button -->
+        <!-- If user id is 1 or 2, then they can see the deleted button -->
         {% if current_user.id in [1, 2] %}
         <div class="clearfix">
-          <a class="btn btn-primary float-right" href="{{url_for('add_new_post')}}">Create New Post</a>
+            <a class="btn btn-outline-success  btn-block" href="{{url_for('add_new_post')}}">
+              Create A New Post ¡!¡
+            </a>
         </div>
         {% endif %}
       </div>
     </div>
   </div>
-  <hr>
 
 {% include "footer.html" %}

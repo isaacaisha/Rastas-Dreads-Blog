@@ -7,9 +7,11 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin, login_user, LoginManager,  current_user, logout_user
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
+from flask_mail import Mail, Message
 from flask_gravatar import Gravatar
 from functools import wraps
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'sqlite:///blog.db')
@@ -26,6 +28,16 @@ db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+# CONNECT TO Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use Gmail SMTP server
+app.config['MAIL_PORT'] = 587  # Port for TLS
+app.config['MAIL_USE_TLS'] = True  # Use TLS for security
+app.config['MAIL_USE_SSL'] = False  # Do not use SSL
+app.config['MAIL_USERNAME'] = 'medusadbt@gmail.com'  # Your Gmail email address
+app.config['MAIL_PASSWORD'] = 'mmazefnguhgiyzot'  # Your Gmail password (or App Password)
+
+mail = Mail(app)
 
 
 @login_manager.user_loader
@@ -99,7 +111,8 @@ def favicon():
 @app.route('/')
 def get_all_posts():
     posts = BlogPost.query.all()
-    return render_template("index.html", all_posts=posts, current_user=current_user)
+    return render_template("index.html", all_posts=posts, current_user=current_user,
+                           date=datetime.now().strftime("%a %d %B %Y"))
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -135,7 +148,8 @@ def register():
 
         return redirect(url_for('get_all_posts'))
 
-    return render_template("register.html", form=form, current_user=current_user)
+    return render_template("register.html", form=form, current_user=current_user,
+                           date=datetime.now().strftime("%a %d %B %Y"))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -161,7 +175,8 @@ def login():
             login_user(user)
             return redirect(url_for('get_all_posts'))
 
-    return render_template("login.html", form=form, current_user=current_user)
+    return render_template("login.html", form=form, current_user=current_user,
+                           date=datetime.now().strftime("%a %d %B %Y"))
 
 
 @app.route('/logout')
@@ -188,17 +203,39 @@ def show_post(post_id):
         db.session.add(new_comment)
         db.session.commit()
 
-    return render_template("post.html", post=requested_post, form=form, current_user=current_user)
+    return render_template("post.html", post=requested_post, form=form, current_user=current_user,
+                           date=datetime.now().strftime("%a %d %B %Y"))
 
 
 @app.route("/about")
 def about():
-    return render_template("about.html", current_user=current_user)
+    return render_template("about.html", current_user=current_user,
+                           date=datetime.now().strftime("%a %d %B %Y"))
 
 
-@app.route("/contact")
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
-    return render_template("contact.html", current_user=current_user)
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone']
+        message = request.form['message']
+
+        # Create an email message
+        msg = Message('Contact Form Submission', sender=email, recipients=['medusadbt@gmail.com'])
+        msg.body = f'Name: {name}\nEmail: {email}\nPhone: {phone}\nMessage: {message}'
+
+        try:
+            # Send the email
+            mail.send(msg)
+            flash('Your message has been sent successfully!', 'success')
+        except Exception as e:
+            flash('An error occurred while sending your message. Please try again later.', 'danger')
+            print(str(e))
+
+        return redirect(url_for('contact'))
+
+    return render_template("contact.html", current_user=current_user, date=datetime.now().strftime("%a %d %B %Y"))
 
 
 # Create admin-only decorator
@@ -230,7 +267,8 @@ def add_new_post():
         db.session.add(new_post)
         db.session.commit()
         return redirect(url_for("get_all_posts"))
-    return render_template("make-post.html", form=form, current_user=current_user)
+    return render_template("make-post.html", form=form, current_user=current_user,
+                           date=datetime.now().strftime("%a %d %B %Y"))
 
 
 @app.route("/edit-post/<int:post_id>", methods=['GET', 'POST'])
@@ -253,7 +291,8 @@ def edit_post(post_id):
         db.session.commit()
         return redirect(url_for("show_post", post_id=post.id))
 
-    return render_template("make-post.html", form=edit_form, is_edit_post=True, current_user=current_user)
+    return render_template("make-post.html", form=edit_form, is_edit_post=True,
+                           current_user=current_user, date=datetime.now().strftime("%a %d %B %Y"))
 
 
 @app.route("/delete/<int:post_id>")
@@ -277,4 +316,4 @@ def comment_to_delete(comment_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=int(os.environ.get('PORT', 5000)))
