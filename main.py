@@ -11,7 +11,11 @@ from flask_mail import Mail, Message
 from flask_gravatar import Gravatar
 from functools import wraps
 import os
+from dotenv import load_dotenv
 from datetime import datetime
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'sqlite:///blog.db')
@@ -34,8 +38,8 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use Gmail SMTP server
 app.config['MAIL_PORT'] = 587  # Port for TLS
 app.config['MAIL_USE_TLS'] = True  # Use TLS for security
 app.config['MAIL_USE_SSL'] = False  # Do not use SSL
-app.config['MAIL_USERNAME'] = 'medusadbt@gmail.com'  # Your Gmail email address
-app.config['MAIL_PASSWORD'] = 'mmazefnguhgiyzot'  # Your Gmail password (or App Password)
+app.config['MAIL_USERNAME'] = os.getenv('EMAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASSWORD')
 
 mail = Mail(app)
 
